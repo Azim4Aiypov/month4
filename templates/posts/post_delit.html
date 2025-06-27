@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  <h1>{{ post.title }}</h1>
+  {% if post.image %}<img src="{{ post.image.url }}" class="img-fluid mb-3">{% endif %}
+  <p>{{ post.content }}</p>
+  <p>Rate: {{ post.rate }}</p>
+  <hr>
+  <h4>Comments</h4>
+  <form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-success">Add</button></form>
+  <ul>
+    {% for c in post.comments.all %}
+      <li>{{ c.text }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
