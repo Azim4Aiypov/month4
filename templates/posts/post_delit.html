@@ -1,16 +1,20 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
-  <h1>{{ post.title }}</h1>
-  {% if post.image %}<img src="{{ post.image.url }}" class="img-fluid mb-3">{% endif %}
-  <p>{{ post.content }}</p>
-  <p>Rate: {{ post.rate }}</p>
-  <hr>
-  <h4>Comments</h4>
-  <form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-success">Add</button></form>
-  <ul>
-    {% for c in post.comments.all %}
-      <li>{{ c.text }}</li>
-    {% endfor %}
-  </ul>
+<div class="container mt-5">
+  <div class="card mx-auto" style="width: 24rem;">
+    {% if post.image %}
+      <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
+    {% else %}
+      <img src="{% static 'placeholder.jpg' %}" class="card-img-top" alt="No image">
+    {% endif %}
+    <div class="card-body">
+      <h5 class="card-title">{{ post.title }}</h5>
+      <p class="card-text">{{ post.content }}</p>
+      <p class="card-text"><small class="text-muted">Posted on {{ post.created_at }}</small></p>
+      <a href="{% url 'posts_list_view' %}" class="btn btn-secondary">← Back to posts</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

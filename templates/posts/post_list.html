@@ -1,20 +1,76 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
-  <h1>All Posts</h1>
-  {% for post in posts %}
-    <div class="card mb-3">
-      {% if post.image %}
-        <img src="{{ post.image.url }}" class="card-img-top">
-      {% else %}
-        <img src="{% static 'pngegg.png' %}" class="card-img-top">
-      {% endif %}
-      <div class="card-body">
+<form method="get" class="mb-3">
+    <input type="text" name="q" placeholder="Поиск..." value="{{ query }}">
+    <select name="category">
+        <option value="">Все категории</option>
+        {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if cat.id|stringformat:"s" == current_category %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="tag">
+        <option value="">Все теги</option>
+        {% for tag in tags %}
+            <option value="{{ tag.id }}" {% if tag.id|stringformat:"s" == current_tag %}selected{% endif %}>{{ tag.name }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="sort">
+        <option value="">Без сортировки</option>
+        <option value="new" {% if current_sort == 'new' %}selected{% endif %}>Сначала новые</option>
+        <option value="old" {% if current_sort == 'old' %}selected{% endif %}>Сначала старые</option>
+        <option value="title" {% if current_sort == 'title' %}selected{% endif %}>По заголовку</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary">Фильтровать</button>
+</form>
+
+{% for post in page_obj %}
+<div class="card mb-3">
+    {% if post.image %}
+    <img src="{{ post.image.url }}" class="card-img-top" alt="...">
+    {% else %}
+    <img src="{% static 'placeholder.jpg' %}" class="card-img-top" alt="...">
+    {% endif %}
+    <div class="card-body">
         <h5 class="card-title">{{ post.title }}</h5>
-        <p>{{ post.content|truncatechars:100 }}</p>
-        <p>Rate: {{ post.rate }}</p>
-        <a href="{% url 'post-detail' post.id %}" class="btn btn-primary">View</a>
-      </div>
+        <p class="card-text">{{ post.description|truncatewords:20 }}</p>
+        <p class="card-text">Posted on {{ post.created_at|date:"d M Y" }}</p>
+        <a href="{% url 'post_detail_view' post.id %}" class="btn btn-primary">Go to post</a>
     </div>
-  {% endfor %}
+</div>
+{% empty %}
+<p>Посты не найдены.</p>
+{% endfor %}
+
+<!-- Пагинация -->
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}{% if current_tag %}tag={{ current_tag }}&{% endif %}{% if current_sort %}sort={{ current_sort }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+    {% endif %}
+
+    <li class="page-item disabled"><span class="page-link">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}{% if current_tag %}tag={{ current_tag }}&{% endif %}{% if current_sort %}sort={{ current_sort }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+    {% endif %}
+  </ul>
+</nav>
+
 {% endblock %}
